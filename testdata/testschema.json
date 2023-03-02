@@ -1,0 +1,34 @@
+{
+    "$id": "https://example.com/person.schema.json",
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "title": "Person",
+    "properties": {
+        "firstName": {
+            "type": "string",
+            "description": "The person's first name.",
+            "enum": ["Bob", "Dan"]
+        },
+        "lastName": {
+            "type": "string",
+            "description": "The person's last name.",
+            "pattern": "^(O|Mc|Mac)?(David|Robin|Tom)(son)?$"
+        },
+        "age": {
+            "description": "Age in years which must be equal to or greater than zero.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 10,
+            "multipleOf": 3
+        },
+        "float": {
+            "description": "Age in years which must be equal to or greater than zero.",
+            "type": "number",
+            "minimum": -2341.5432,
+            "maximum": 5423.1512345
+        },
+        "hmmph": {
+            "type": "integer",
+            "const": 20
+        }
+    }
+}
