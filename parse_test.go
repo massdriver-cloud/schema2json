@@ -86,3 +86,59 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
+
+func TestParseMapStringInterface(t *testing.T) {
+	type test struct {
+		name  string
+		input map[string]interface{}
+		want  *schema2json.Schema
+	}
+	tests := []test{
+		{
+			name: "ParseFile",
+			input: map[string]interface{}{
+				"$id":     "http://some-id.json",
+				"$schema": "http://path.org/draft-07/schema",
+				"title":   "example",
+				"properties": map[string]interface{}{
+					"name": map[string]interface{}{
+						"type":        "string",
+						"description": "a string name",
+					},
+					"age": map[string]interface{}{
+						"type":        "integer",
+						"description": "an integer field",
+					},
+				},
+			},
+			want: &schema2json.Schema{
+				ID:      stringPtr("http://some-id.json"),
+				Version: stringPtr("http://path.org/draft-07/schema"),
+				Title:   stringPtr("example"),
+				Properties: map[string]*schema2json.Schema{
+					"name": {
+						Type:        stringPtr("string"),
+						Description: stringPtr("a string name"),
+					},
+					"age": {
+						Description: stringPtr("an integer field"),
+						Type:        stringPtr("integer"),
+					},
+				},
+			},
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			got, err := schema2json.ParseMapStringInterface(tc.input)
+			if err != nil {
+				t.Fatalf("%s, unexpected error", err.Error())
+			}
+
+			if !reflect.DeepEqual(got, tc.want) {
+				t.Fatalf("got: %v want: %v", got, tc.want)
+			}
+		})
+	}
+}

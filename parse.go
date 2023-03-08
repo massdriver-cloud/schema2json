@@ -14,3 +14,14 @@ func Parse(input io.Reader) (*Schema, error) {
 	err := json.Unmarshal(buf.Bytes(), schema)
 	return schema, err
 }
+
+func ParseMapStringInterface(input map[string]interface{}) (*Schema, error) {
+	bytes, err := json.Marshal(input)
+	if err != nil {
+		return nil, err
+	}
+
+	schema := new(Schema)
+	err = json.Unmarshal(bytes, schema)
+	return schema, err
+}
