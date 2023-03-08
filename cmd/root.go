@@ -4,6 +4,7 @@ Copyright © 2023 NAME HERE <EMAIL ADDRESS>
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -30,12 +31,13 @@ func Execute() {
 func init() {}
 
 func run(cmd *cobra.Command, args []string) error {
-	schema := new(schema2json.Schema)
-	bytes, err := os.ReadFile(args[0])
+	rawBytes, err := os.ReadFile(args[0])
 	if err != nil {
 		return err
 	}
-	err = json.Unmarshal(bytes, schema)
+
+	buf := bytes.NewBuffer(rawBytes)
+	schema, err := schema2json.Parse(buf)
 	if err != nil {
 		return err
 	}

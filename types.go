@@ -1,18 +1,17 @@
 package schema2json
 
-type ID string
-type Definitions map[string]*Schema
+// Using pointers for all values to make it easy to determine missing fields (nil) from empty fields ("")
 type Schema struct {
 	// This is an internal field allowing error reporting the field name for easier diagnosis of issues
 	Name string `json:"-"`
 	// RFC draft-bhutton-json-schema-00
-	Version     *string      `json:"$schema,omitempty"`     // section 8.1.1
-	ID          *ID          `json:"$id,omitempty"`         // section 8.2.1
-	Anchor      *string      `json:"$anchor,omitempty"`     // section 8.2.2
-	Ref         *string      `json:"$ref,omitempty"`        // section 8.2.3.1
-	DynamicRef  *string      `json:"$dynamicRef,omitempty"` // section 8.2.3.2
-	Definitions *Definitions `json:"$defs,omitempty"`       // section 8.2.4
-	Comments    *string      `json:"$comment,omitempty"`    // section 8.3
+	Version     *string            `json:"$schema,omitempty"`     // section 8.1.1
+	ID          *string            `json:"$id,omitempty"`         // section 8.2.1
+	Anchor      *string            `json:"$anchor,omitempty"`     // section 8.2.2
+	Ref         *string            `json:"$ref,omitempty"`        // section 8.2.3.1
+	DynamicRef  *string            `json:"$dynamicRef,omitempty"` // section 8.2.3.2
+	Definitions map[string]*Schema `json:"$defs,omitempty"`       // section 8.2.4
+	Comments    *string            `json:"$comment,omitempty"`    // section 8.3
 	// RFC draft-bhutton-json-schema-00 section 10.2.1 (Sub-schemas with logic)
 	AllOf []*Schema `json:"allOf,omitempty"` // section 10.2.1.1
 	AnyOf []*Schema `json:"anyOf,omitempty"` // section 10.2.1.2
@@ -73,11 +72,5 @@ type Schema struct {
 }
 
 func stringPtr(value string) *string {
-	return &value
-}
-func intPtr(value int) *int {
-	return &value
-}
-func floatPtr(value float64) *float64 {
 	return &value
 }

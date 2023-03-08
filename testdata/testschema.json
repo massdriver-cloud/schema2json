@@ -3,25 +3,20 @@
     "$schema": "http://json-schema.org/draft-07/schema#",
     "title": "Person",
     "properties": {
-        "firstName": {
+        "name": {
             "type": "string",
-            "description": "The person's first name.",
+            "description": "a name",
             "enum": ["Bob", "Dan"]
         },
-        "lastName": {
-            "type": "string",
-            "description": "The person's last name.",
-            "pattern": "^(O|Mc|Mac)?(David|Robin|Tom)(son)?$"
-        },
         "age": {
-            "description": "Age in years which must be equal to or greater than zero.",
+            "description": "an integer with min/max and multipleOf",
             "type": "integer",
             "minimum": 0,
             "maximum": 10,
             "multipleOf": 3
         },
         "float": {
-            "description": "Age in years which must be equal to or greater than zero.",
+            "description": "A floating point value",
             "type": "number",
             "minimum": -2341.5432,
             "maximum": 5423.1512345
@@ -29,6 +24,15 @@
         "hmmph": {
             "type": "integer",
             "const": 20
+        },
+        "object": {
+            "title": "test object",
+            "type": "object",
+            "properties": {
+                "nested": {
+                    "type": "string"
+                }
+            }
         }
     }
 }
