@@ -6,10 +6,10 @@ import (
 )
 
 func generateArray(property *Schema) ([]interface{}, error) {
-	if property.Const != nil {
-		value, ok := property.Const.([]interface{})
+	if property.Default != nil {
+		value, ok := property.Default.([]interface{})
 		if !ok {
-			return nil, fmt.Errorf("%s: unable to convert const %v to array", property.Name, property.Const)
+			return nil, fmt.Errorf("%s: unable to convert default %v to array", property.Name, property.Default)
 		}
 		return value, nil
 	}

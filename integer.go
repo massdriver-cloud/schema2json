@@ -7,10 +7,10 @@ import (
 )
 
 func generateInteger(property *Schema) (int, error) {
-	if property.Const != nil {
-		value, err := interfaceToInt(property.Const)
+	if property.Default != nil {
+		value, err := interfaceToInt(property.Default)
 		if err != nil {
-			return 0, fmt.Errorf("%s: unable to convert const %v to int", property.Name, property.Const)
+			return 0, fmt.Errorf("%s: unable to convert const %v to int", property.Name, property.Default)
 		}
 		return value, nil
 	}
@@ -24,7 +24,7 @@ func generateInteger(property *Schema) (int, error) {
 		return value, nil
 	}
 
-	minimum := -999999999999
+	minimum := -9999999
 	if property.Minimum != nil {
 		minimum = int(*property.Minimum)
 	}
@@ -32,28 +32,28 @@ func generateInteger(property *Schema) (int, error) {
 		minimum += 1
 	}
 
-	maximum := 999999999999
+	maximum := 99999999
 	if property.Maximum != nil {
-		// adding 1 since rand.Intn is exclusive at the top end
-		maximum = int(*property.Maximum) + 1
-		if property.ExclusiveMinimum != nil && *property.ExclusiveMinimum {
-			maximum -= 1
-		}
+		maximum = int(*property.Maximum)
+	}
+	if property.ExclusiveMaximum != nil && *property.ExclusiveMaximum {
+		maximum -= 1
 	}
 
 	if property.MultipleOf != nil {
-		lowMultiplier := int(math.Ceil(float64(minimum) / *property.MultipleOf))
+		lowMultiplier := int(math.Floor(float64(minimum) / *property.MultipleOf))
 		highMultiplier := int(math.Floor(float64(maximum) / *property.MultipleOf))
 		multiplier := rand.Intn(highMultiplier-lowMultiplier) + lowMultiplier + 1
 		return multiplier * int(*property.MultipleOf), nil
 	}
 
-	value := rand.Intn(maximum-minimum) + minimum
+	// adding 1 since Intn is exclusive at the top end
+	value := rand.Intn(maximum-minimum+1) + minimum
 
 	return value, nil
 }
 
-// Golang assumes all numeric fields are float64 when deserializing anonymous JSON
+// // Golang assumes all numeric fields are float64 when deserializing anonymous JSON
 func interfaceToInt(value interface{}) (int, error) {
 	float, ok := value.(float64)
 	if !ok {

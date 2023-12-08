@@ -7,10 +7,10 @@ import (
 )
 
 func generateNumber(property *Schema) (float64, error) {
-	if property.Const != nil {
-		value, ok := property.Const.(float64)
+	if property.Default != nil {
+		value, ok := property.Default.(float64)
 		if !ok {
-			return 0, fmt.Errorf("%s: unable to convert const %v to float64", property.Name, property.Const)
+			return 0, fmt.Errorf("%s: unable to convert default %v to float64", property.Name, property.Default)
 		}
 		return value, nil
 	}
@@ -41,7 +41,7 @@ func generateNumber(property *Schema) (float64, error) {
 	}
 
 	if property.MultipleOf != nil {
-		lowMultiplier := int(math.Ceil(minimum / *property.MultipleOf))
+		lowMultiplier := int(math.Floor(minimum / *property.MultipleOf))
 		highMultiplier := int(math.Floor(maximum / *property.MultipleOf))
 		multiplier := rand.Intn(highMultiplier-lowMultiplier) + lowMultiplier + 1
 		return float64(multiplier) * *property.MultipleOf, nil
