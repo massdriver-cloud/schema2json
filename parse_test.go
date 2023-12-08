@@ -7,14 +7,8 @@ import (
 	"testing"
 
 	"github.com/massdriver-cloud/schema2json"
+	orderedmap "github.com/wk8/go-ordered-map/v2"
 )
-
-func stringPtr(value string) *string {
-	return &value
-}
-func floatPtr(value float64) *float64 {
-	return &value
-}
 
 func TestParse(t *testing.T) {
 	type test struct {
@@ -30,39 +24,57 @@ func TestParse(t *testing.T) {
 				ID:      stringPtr("https://example.com/person.schema.json"),
 				Version: stringPtr("http://json-schema.org/draft-07/schema#"),
 				Title:   stringPtr("Person"),
-				Properties: map[string]*schema2json.Schema{
-					"name": {
-						Type:        stringPtr("string"),
-						Description: stringPtr("a name"),
-						Enum:        []interface{}{"Bob", "Dan"},
-					},
-					"age": {
-						Description: stringPtr("an integer with min/max and multipleOf"),
-						Type:        stringPtr("integer"),
-						Minimum:     floatPtr(0),
-						Maximum:     floatPtr(10),
-						MultipleOf:  floatPtr(3),
-					},
-					"float": {
-						Description: stringPtr("A floating point value"),
-						Type:        stringPtr("number"),
-						Minimum:     floatPtr(-2341.5432),
-						Maximum:     floatPtr(5423.1512345),
-					},
-					"hmmph": {
-						Type:  stringPtr("integer"),
-						Const: float64(20),
-					},
-					"object": {
-						Title: stringPtr("test object"),
-						Type:  stringPtr("object"),
-						Properties: map[string]*schema2json.Schema{
-							"nested": {
-								Type: stringPtr("string"),
-							},
+				Properties: orderedmap.New[string, *schema2json.Schema](orderedmap.WithInitialData(
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "name",
+						Value: &schema2json.Schema{
+							Type:        stringPtr("string"),
+							Description: stringPtr("a name"),
+							Enum:        []interface{}{"Bob", "Dan"},
 						},
 					},
-				},
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "age",
+						Value: &schema2json.Schema{
+							Description: stringPtr("an integer with min/max and multipleOf"),
+							Type:        stringPtr("integer"),
+							Minimum:     floatPtr(0),
+							Maximum:     floatPtr(10),
+							MultipleOf:  floatPtr(3),
+						},
+					},
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "float",
+						Value: &schema2json.Schema{
+							Description: stringPtr("A floating point value"),
+							Type:        stringPtr("number"),
+							Minimum:     floatPtr(-2341.5432),
+							Maximum:     floatPtr(5423.1512345),
+						},
+					},
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "hmmph",
+						Value: &schema2json.Schema{
+							Type:  stringPtr("integer"),
+							Const: float64(20),
+						},
+					},
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "object",
+						Value: &schema2json.Schema{
+							Title: stringPtr("test object"),
+							Type:  stringPtr("object"),
+							Properties: orderedmap.New[string, *schema2json.Schema](orderedmap.WithInitialData(
+								orderedmap.Pair[string, *schema2json.Schema]{
+									Key: "nested",
+									Value: &schema2json.Schema{
+										Type: stringPtr("string"),
+									},
+								},
+							)),
+						},
+					},
+				)),
 			},
 		},
 	}
@@ -95,19 +107,19 @@ func TestParseMapStringInterface(t *testing.T) {
 	}
 	tests := []test{
 		{
-			name: "ParseFile",
+			name: "ParseMapStringInterface",
 			input: map[string]interface{}{
 				"$id":     "http://some-id.json",
 				"$schema": "http://path.org/draft-07/schema",
 				"title":   "example",
 				"properties": map[string]interface{}{
-					"name": map[string]interface{}{
-						"type":        "string",
-						"description": "a string name",
-					},
 					"age": map[string]interface{}{
 						"type":        "integer",
 						"description": "an integer field",
+					},
+					"name": map[string]interface{}{
+						"type":        "string",
+						"description": "a string name",
 					},
 				},
 			},
@@ -115,16 +127,22 @@ func TestParseMapStringInterface(t *testing.T) {
 				ID:      stringPtr("http://some-id.json"),
 				Version: stringPtr("http://path.org/draft-07/schema"),
 				Title:   stringPtr("example"),
-				Properties: map[string]*schema2json.Schema{
-					"name": {
-						Type:        stringPtr("string"),
-						Description: stringPtr("a string name"),
+				Properties: orderedmap.New[string, *schema2json.Schema](orderedmap.WithInitialData(
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "age",
+						Value: &schema2json.Schema{
+							Type:        stringPtr("integer"),
+							Description: stringPtr("an integer field"),
+						},
 					},
-					"age": {
-						Description: stringPtr("an integer field"),
-						Type:        stringPtr("integer"),
+					orderedmap.Pair[string, *schema2json.Schema]{
+						Key: "name",
+						Value: &schema2json.Schema{
+							Type:        stringPtr("string"),
+							Description: stringPtr("a string name"),
+						},
 					},
-				},
+				)),
 			},
 		},
 	}

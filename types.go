@@ -1,5 +1,11 @@
 package schema2json
 
+import (
+	"encoding/json"
+
+	orderedmap "github.com/wk8/go-ordered-map/v2"
+)
+
 // Using pointers for all values to make it easy to determine missing fields (nil) from empty fields ("")
 type Schema struct {
 	// This is an internal field allowing error reporting the field name for easier diagnosis of issues
@@ -28,10 +34,11 @@ type Schema struct {
 	Items       *Schema   `json:"items,omitempty"`       // section 10.3.1.2  (replaces additionalItems)
 	Contains    *Schema   `json:"contains,omitempty"`    // section 10.3.1.3
 	// RFC draft-bhutton-json-schema-00 section 10.3.2 (sub-schemas)
-	Properties           map[string]*Schema `json:"properties,omitempty"`           // section 10.3.2.1
-	PatternProperties    map[string]*Schema `json:"patternProperties,omitempty"`    // section 10.3.2.2
-	AdditionalProperties interface{}        `json:"additionalProperties,omitempty"` // section 10.3.2.3
-	PropertyNames        *Schema            `json:"propertyNames,omitempty"`        // section 10.3.2.4
+	Properties              *orderedmap.OrderedMap[string, *Schema] `json:"properties,omitempty"`
+	PatternProperties       map[string]*Schema                      `json:"patternProperties,omitempty"`    // section 10.3.2.2
+	AdditionalPropertiesRaw *json.RawMessage                        `json:"additionalProperties,omitempty"` // section 10.3.2.3
+	AdditionalProperties    interface{}                             `json:"-"`
+	PropertyNames           *Schema                                 `json:"propertyNames,omitempty"` // section 10.3.2.4
 	// RFC draft-bhutton-json-schema-validation-00, section 6
 	Type              *string             `json:"type,omitempty"`              // section 6.1.1
 	Enum              []interface{}       `json:"enum,omitempty"`              // section 6.1.2
@@ -74,3 +81,60 @@ type Schema struct {
 func stringPtr(value string) *string {
 	return &value
 }
+func floatPtr(value float64) *float64 {
+	return &value
+}
+
+// func (s *Schema) MarshalJSON() ([]byte, error) {
+// 	if s.AdditionalProperties != nil {
+// 		addPropBytes, err := json.Marshal(s.AdditionalProperties)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 		addPropRaw := json.RawMessage(addPropBytes)
+// 		s.AdditionalPropertiesRaw = &addPropRaw
+// 	}
+
+// 	type Alias Schema
+// 	return json.Marshal(&struct {
+// 		*Alias
+// 	}{
+// 		Alias: (*Alias)(s),
+// 	})
+// }
+
+// // need a custom unmarshaler to deal with the ambiguity of additionalProperties
+// func (s *Schema) UnmarshalJSON(data []byte) error {
+// 	// we need to redirect to another type to avoid infinite recursion loop
+// 	type Alias Schema
+// 	alias := &struct {
+// 		*Alias
+// 	}{
+// 		Alias: (*Alias)(s),
+// 	}
+
+// 	if err := json.Unmarshal(data, &alias); err != nil {
+// 		return err
+// 	}
+
+// 	if s.AdditionalPropertiesRaw != nil {
+// 		var addPropBool bool
+// 		err := json.Unmarshal(*s.AdditionalPropertiesRaw, &addPropBool)
+// 		if err != nil {
+// 			// additionalProperties is schema
+// 			var addPropSchema Schema
+// 			err = json.Unmarshal(*s.AdditionalPropertiesRaw, &addPropSchema)
+// 			if err != nil {
+// 				return err
+// 			}
+// 			s.AdditionalProperties = &addPropSchema
+
+// 		} else {
+// 			// additionalProperties is bool
+// 			s.AdditionalProperties = addPropBool
+// 		}
+// 		s.AdditionalPropertiesRaw = nil
+// 	}
+
+// 	return nil
+// }

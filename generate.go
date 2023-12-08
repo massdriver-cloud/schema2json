@@ -12,9 +12,14 @@ func GenerateJSON(schema *Schema) (interface{}, error) {
 }
 
 func generateValue(property *Schema) (interface{}, error) {
+	if property.Const != nil {
+		return property.Const, nil
+	}
+
 	// If the type isn't set at this point, we should assume its an 'object'
 	if property.Type == nil {
-		property.Type = stringPtr("object")
+		ty := "object"
+		property.Type = &ty
 	}
 
 	if property.OneOf != nil {
@@ -45,7 +50,7 @@ func generateValue(property *Schema) (interface{}, error) {
 
 func selectOneOf(property *Schema) (*Schema, error) {
 	if len(property.OneOf) == 0 {
-		return nil, fmt.Errorf("invalid schema: property %s contains 'oneOf' with elements", property.Name)
+		return nil, fmt.Errorf("invalid schema: property %s contains 'oneOf' with no elements", property.Name)
 	}
 	return MergeSchemas(property, property.OneOf[rand.Intn(len(property.OneOf))])
 }

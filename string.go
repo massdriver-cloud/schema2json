@@ -8,10 +8,10 @@ import (
 )
 
 func generateString(property *Schema) (string, error) {
-	if property.Const != nil {
-		value, ok := property.Const.(string)
+	if property.Default != nil {
+		value, ok := property.Default.(string)
 		if !ok {
-			return "", fmt.Errorf("%s: unable to convert const %v to string", property.Name, property.Const)
+			return "", fmt.Errorf("%s: unable to convert default %v to string", property.Name, property.Default)
 		}
 		return value, nil
 	}
