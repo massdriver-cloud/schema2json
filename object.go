@@ -17,13 +17,14 @@ func generateObject(property *Schema) (map[string]interface{}, error) {
 	}
 
 	if property.Dependencies != nil {
-		for _, schema := range property.Dependencies {
-			dep, err := generateValue(schema)
-			if err != nil {
-				return result, err
+		for prop, schema := range property.Dependencies {
+			if _, exists := property.Properties.Get(prop); exists {
+				dep, err := generateValue(schema)
+				if err != nil {
+					return result, err
+				}
+				maps.Copy(result, dep.(map[string]interface{}))
 			}
-			maps.Copy(result, dep.(map[string]interface{}))
-
 		}
 	}
 
